@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { saveHighScore, getCurrentUser } from "../../lib/game";
+import { saveGame, getCurrentUser } from "../../lib/game";
 
 const BOARD_SIZE = 20;
 const TOTAL_CELLS = BOARD_SIZE * BOARD_SIZE;
@@ -46,7 +46,7 @@ export function useSnake() {
 
     const interval = setInterval(() => {
       setSnake((prev) => {
-        let head = prev[prev.length - 1];
+        const head = prev[prev.length - 1];
         let newHead = head + direction;
 
         if (newHead < 0) newHead = TOTAL_CELLS - 1;
@@ -57,10 +57,10 @@ export function useSnake() {
           return prev;
         }
 
-        let newSnake = [...prev, newHead];
+        const newSnake = [...prev, newHead];
 
         if (newHead === food) {
-          setScore((s) => s + 10);
+          setScore((prevScore) => prevScore + 10);
 
           let newFood = Math.floor(Math.random() * TOTAL_CELLS);
 
@@ -69,9 +69,11 @@ export function useSnake() {
           }
 
           setFood(newFood);
-        } else {
-          newSnake.shift();
+
+          return newSnake;
         }
+
+        newSnake.shift();
 
         return newSnake;
       });
@@ -81,17 +83,17 @@ export function useSnake() {
   }, [direction, food, gameOver]);
 
   useEffect(() => {
-    async function saveScore() {
+    async function finishGame() {
       if (!gameOver) return;
 
       const user = await getCurrentUser();
 
       if (!user) return;
 
-      await saveHighScore(user.id, score);
+      await saveGame(user.id, score);
     }
 
-    saveScore();
+    finishGame();
   }, [gameOver, score]);
 
   function restartGame() {
