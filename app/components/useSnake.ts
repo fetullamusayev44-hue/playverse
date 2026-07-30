@@ -1,23 +1,34 @@
 import { useEffect, useState } from "react";
 
+const BOARD_SIZE = 20;
+const TOTAL_CELLS = BOARD_SIZE * BOARD_SIZE;
+
 export function useSnake() {
   const [snake, setSnake] = useState([210, 211, 212]);
   const [direction, setDirection] = useState(1);
+
+  const [food, setFood] = useState(150);
+  const [score, setScore] = useState(0);
+
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       switch (e.key) {
         case "ArrowRight":
-          setDirection(1);
+          if (direction !== -1) setDirection(1);
           break;
+
         case "ArrowLeft":
-          setDirection(-1);
+          if (direction !== 1) setDirection(-1);
           break;
+
         case "ArrowUp":
-          setDirection(-20);
+          if (direction !== 20) setDirection(-20);
           break;
+
         case "ArrowDown":
-          setDirection(20);
+          if (direction !== -20) setDirection(20);
           break;
       }
     }
@@ -27,23 +38,60 @@ export function useSnake() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSnake((prev) => {
-        const head = prev[prev.length - 1];
-        let newHead = head + direction;
-
-        if (newHead < 0) newHead = 399;
-        if (newHead > 399) newHead = 0;
-
-        return [...prev.slice(1), newHead];
-      });
-    }, 300);
-
-    return () => clearInterval(interval);
   }, [direction]);
 
-  return { snake };
+  useEffect(() => {
+    if (gameOver) return;
+
+    const interval = setInterval(() => {
+      setSnake((prev) => {
+        let head = prev[prev.length - 1];
+        let newHead = head + direction;
+
+        if (newHead < 0) newHead = TOTAL_CELLS - 1;
+        if (newHead >= TOTAL_CELLS) newHead = 0;
+
+        if (prev.includes(newHead)) {
+          setGameOver(true);
+          return prev;
+        }
+
+        let newSnake = [...prev, newHead];
+
+        if (newHead === food) {
+          setScore((s) => s + 10);
+
+          let newFood = Math.floor(Math.random() * TOTAL_CELLS);
+
+          while (newSnake.includes(newFood)) {
+            newFood = Math.floor(Math.random() * TOTAL_CELLS);
+          }
+
+          setFood(newFood);
+        } else {
+          newSnake.shift();
+        }
+
+        return newSnake;
+      });
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [direction, food, gameOver]);
+
+  function restartGame() {
+    setSnake([210, 211, 212]);
+    setDirection(1);
+    setFood(150);
+    setScore(0);
+    setGameOver(false);
+  }
+
+  return {
+    snake,
+    food,
+    score,
+    gameOver,
+    restartGame,
+  };
 }
