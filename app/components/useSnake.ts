@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { saveHighScore, getCurrentUser } from "../../lib/game";
 
 const BOARD_SIZE = 20;
 const TOTAL_CELLS = BOARD_SIZE * BOARD_SIZE;
@@ -78,6 +79,20 @@ export function useSnake() {
 
     return () => clearInterval(interval);
   }, [direction, food, gameOver]);
+
+  useEffect(() => {
+    async function saveScore() {
+      if (!gameOver) return;
+
+      const user = await getCurrentUser();
+
+      if (!user) return;
+
+      await saveHighScore(user.id, score);
+    }
+
+    saveScore();
+  }, [gameOver, score]);
 
   function restartGame() {
     setSnake([210, 211, 212]);
