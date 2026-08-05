@@ -26,12 +26,16 @@ export default function AdminPage() {
   }, []);
 
   async function checkAdmin() {
+    // 🔒 1. Yalnız Localhost yoxlanışı (Vercel production-da qəti şəkildə bloklanır)
+    if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+      location.href = "/";
+      return;
+    }
+
+    // 🔒 2. Supabase İstifadəçi və Admin Yoxlanışı
     const {
       data: { user },
     } = await supabase.auth.getUser();
-
-    console.log("USER ID:", user?.id);
-    console.log("USER EMAIL:", user?.email);
 
     if (!user) {
       location.href = "/";
@@ -43,9 +47,6 @@ export default function AdminPage() {
       .select("id, is_admin")
       .eq("id", user.id)
       .single();
-
-    console.log("PROFILE:", data);
-    console.log("PROFILE ERROR:", error);
 
     if (!data?.is_admin) {
       location.href = "/";
@@ -75,7 +76,6 @@ export default function AdminPage() {
 
     setUsers(sanitizedUsers);
 
-    // Stats məlumatlarını API-dən almaq
     const statsRes = await fetch("/api/admin/stats");
     if (statsRes.ok) {
       const statsData = await statsRes.json();
@@ -94,13 +94,7 @@ export default function AdminPage() {
     }
   }
 
-  // Debugging üçün yenilənmiş updateBalance funksiyası
   async function updateBalance(userId: string, amount: number) {
-    alert("BUTTON CLICKED");
-
-    console.log("USER:", userId);
-    console.log("AMOUNT:", amount);
-
     const sanitizedAmount = Math.max(0, amount);
 
     const res = await fetch("/api/admin/balance", {
@@ -115,11 +109,11 @@ export default function AdminPage() {
     });
 
     const result = await res.text();
-    alert(result);
-    console.log(result);
 
     if (res.ok) {
       await loadUsers();
+    } else {
+      alert("Xəta baş verdi: " + result);
     }
   }
 
@@ -143,8 +137,7 @@ export default function AdminPage() {
     }
 
     await loadUsers();
-
-    alert("✅ Admin Updated");
+    alert("✅ Admin Status Güncəlləndi");
   }
 
   if (loading) {
@@ -160,15 +153,18 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-zinc-950 text-white flex justify-center py-12">
       <div className="w-[700px] bg-zinc-900 rounded-2xl p-8">
-        <h1 className="text-5xl font-black mb-8">👑 Admin Panel</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-5xl font-black">👑 Admin Panel</h1>
+          <span className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-semibold">
+            🟢 Localhost Only
+          </span>
+        </div>
 
         {/* Dashboard Statistikaları */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-zinc-800 rounded-2xl p-5 text-center">
             <div className="text-zinc-400 text-sm">👥 Users</div>
-            <div className="text-3xl font-black mt-2">
-              {stats.totalUsers}
-            </div>
+            <div className="text-3xl font-black mt-2">{stats.totalUsers}</div>
           </div>
 
           <div className="bg-zinc-800 rounded-2xl p-5 text-center">
@@ -180,9 +176,7 @@ export default function AdminPage() {
 
           <div className="bg-zinc-800 rounded-2xl p-5 text-center">
             <div className="text-zinc-400 text-sm">🎮 Total Games</div>
-            <div className="text-3xl font-black mt-2">
-              {stats.totalGames}
-            </div>
+            <div className="text-3xl font-black mt-2">{stats.totalGames}</div>
           </div>
 
           <div className="bg-zinc-800 rounded-2xl p-5 text-center">
@@ -225,9 +219,7 @@ export default function AdminPage() {
           <div className="space-y-3">
             {users
               .filter((u) =>
-                (u.username ?? "")
-                  .toLowerCase()
-                  .includes(search.toLowerCase())
+                (u.username ?? "").toLowerCase().includes(search.toLowerCase())
               )
               .map((u) => (
                 <div
@@ -235,9 +227,7 @@ export default function AdminPage() {
                   className="bg-zinc-800 rounded-xl p-4 flex justify-between items-center"
                 >
                   <div>
-                    <div className="font-bold">
-                      {u.username || "No Username"}
-                    </div>
+                    <div className="font-bold">{u.username || "No Username"}</div>
                     <div className="text-zinc-400 text-sm">{u.id}</div>
                   </div>
 
@@ -259,7 +249,7 @@ export default function AdminPage() {
                       ) : (
                         <button
                           onClick={() => toggleAdmin(u.id, true)}
-                          className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-400 transition cursor-pointer"
+                          className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-400 transition cursor-pointer text-sm font-semibold"
                         >
                           👑 Make Admin
                         </button>
@@ -268,22 +258,40 @@ export default function AdminPage() {
 
                     <button
                       onClick={() => router.push(`/admin/logs/${u.id}`)}
-                      className="bg-indigo-600 px-3 py-1 rounded hover:bg-indigo-500 transition mb-2 cursor-pointer"
+                      className="bg-indigo-600 px-3 py-1 rounded hover:bg-indigo-500 transition mb-2 cursor-pointer text-sm"
                     >
                       📜 View Logs
                     </button>
 
-                    <div className="flex flex-wrap gap-2 justify-end">
+                    <div className="flex flex-wrap gap-2 justify-end mt-2">
+                      <button
+                        onClick={() => {
+                          const customAmount = prompt(
+                            `Yeni balansı daxil edin (Hazırkı: $${u.balance}):`,
+                            u.balance
+                          );
+                          if (
+                            customAmount !== null &&
+                            !isNaN(Number(customAmount))
+                          ) {
+                            updateBalance(u.id, Number(customAmount));
+                          }
+                        }}
+                        className="bg-purple-600 px-3 py-1 rounded hover:bg-purple-500 transition cursor-pointer font-semibold text-sm"
+                      >
+                        ✏️ Custom
+                      </button>
+
                       <button
                         onClick={() => updateBalance(u.id, u.balance + 100)}
-                        className="bg-green-600 px-3 py-1 rounded hover:bg-green-500 transition cursor-pointer"
+                        className="bg-green-600 px-3 py-1 rounded hover:bg-green-500 transition cursor-pointer text-sm"
                       >
                         +100
                       </button>
 
                       <button
                         onClick={() => updateBalance(u.id, u.balance + 1000)}
-                        className="bg-blue-600 px-3 py-1 rounded hover:bg-blue-500 transition cursor-pointer"
+                        className="bg-blue-600 px-3 py-1 rounded hover:bg-blue-500 transition cursor-pointer text-sm"
                       >
                         +1000
                       </button>
@@ -292,7 +300,7 @@ export default function AdminPage() {
                         onClick={() =>
                           updateBalance(u.id, Math.max(0, u.balance - 100))
                         }
-                        className="bg-red-600 px-3 py-1 rounded hover:bg-red-500 transition cursor-pointer"
+                        className="bg-red-600 px-3 py-1 rounded hover:bg-red-500 transition cursor-pointer text-sm"
                       >
                         -100
                       </button>
@@ -301,7 +309,7 @@ export default function AdminPage() {
                         onClick={() =>
                           updateBalance(u.id, Math.max(0, u.balance - 1000))
                         }
-                        className="bg-red-800 px-3 py-1 rounded hover:bg-red-700 transition cursor-pointer"
+                        className="bg-red-800 px-3 py-1 rounded hover:bg-red-700 transition cursor-pointer text-sm"
                       >
                         -1000
                       </button>

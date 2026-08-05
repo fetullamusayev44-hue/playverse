@@ -1,88 +1,81 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProfile } from "@/lib/game";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function Navbar() {
-  const [balance, setBalance] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    async function load() {
-      const profile = await getProfile();
+    async function checkUserAndAdmin() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
 
-      if (profile) {
-        setBalance(profile.balance);
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", user.id)
+          .single();
+
+        if (data?.is_admin) {
+          setIsAdmin(true);
+        }
       }
     }
 
-    load();
+    checkUserAndAdmin();
   }, []);
 
-  return (
-    <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur border-b border-zinc-800">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-5">
+  // Yalnız localhost-da true olacaq
+  const isLocalhost = typeof window !== "undefined" && window.location.hostname === "localhost";
 
-        <Link
-          href="/"
-          className="text-3xl font-black text-yellow-400 hover:text-yellow-300 transition"
-        >
-          🎮 PlayVerse
+  return (
+    <nav className="w-full bg-zinc-950 border-b border-zinc-800 px-6 py-4 flex justify-between items-center text-white">
+      {/* Logo */}
+      <Link href="/" className="text-2xl font-black text-purple-500 flex items-center gap-2">
+        🎮 PlayVerse
+      </Link>
+
+      {/* Sağ Menyu Linkləri */}
+      <div className="flex items-center gap-6">
+        {/* Əgər istifadəçi giriş etməyibsə Register / Login göstər */}
+        {!user ? (
+          <>
+            <Link href="/register" className="text-zinc-300 hover:text-white transition font-medium">
+              Register
+            </Link>
+            <Link href="/login" className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl transition font-semibold">
+              Login
+            </Link>
+          </>
+        ) : (
+          <span className="text-zinc-400 text-sm">
+            {user.email}
+          </span>
+        )}
+
+        <Link href="/games" className="text-zinc-300 hover:text-white transition">
+          Games
+        </Link>
+        
+        <Link href="/deposit" className="text-zinc-300 hover:text-white transition">
+          Deposit
+        </Link>
+        
+        <Link href="/profile" className="text-zinc-300 hover:text-white transition">
+          Profile
         </Link>
 
-        <nav className="flex items-center gap-6">
-
-          <Link
-            href="/"
-            className="text-zinc-300 hover:text-yellow-400 transition"
-          >
-            Home
+        {/* 🔒 Admin Linki: Yalnız localhost-da və səndə (admin olduqda) görünəcək */}
+        {isLocalhost && isAdmin && (
+          <Link href="/admin" className="text-yellow-400 hover:text-yellow-300 transition font-bold">
+            Admin
           </Link>
-
-          <Link
-            href="/games"
-            className="text-zinc-300 hover:text-yellow-400 transition"
-          >
-            Games
-          </Link>
-
-          <Link
-            href="/deposit"
-            className="text-zinc-300 hover:text-yellow-400 transition"
-          >
-            Deposit
-          </Link>
-
-          <Link
-            href="/withdraw"
-            className="text-zinc-300 hover:text-yellow-400 transition"
-          >
-            Withdraw
-          </Link>
-
-          <Link
-            href="/profile"
-            className="text-zinc-300 hover:text-yellow-400 transition"
-          >
-            Profile
-          </Link>
-
-          <Link
-            href="/leaderboard"
-            className="text-zinc-300 hover:text-yellow-400 transition"
-          >
-            Leaderboard
-          </Link>
-
-          {/* Balans Göstəricisi */}
-          <div className="bg-zinc-800/80 border border-zinc-700/60 text-green-400 font-bold px-4 py-1.5 rounded-full text-sm flex items-center gap-1.5 ml-2 shadow-inner">
-            <span>💰</span>
-            <span>${balance}</span>
-          </div>
-
-        </nav>
-
+        )}
       </div>
-    </header>
+    </nav>
   );
 }
