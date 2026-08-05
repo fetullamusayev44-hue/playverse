@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { supabase } from "@/lib/supabase";
 
 export async function GET() {
-  const { data: games } = await supabaseAdmin
-    .from("game_history")
-    .select("*");
+  const { data: gamesData } = await supabase
+    .from("game_logs")
+    .select("bet_amount, win_amount");
 
-  const totalGames = games?.length || 0;
-
-  const totalBet =
-    games?.reduce((sum, game) => sum + Number(game.bet || 0), 0) || 0;
-
-  const totalWin =
-    games?.reduce((sum, game) => sum + Number(game.win || 0), 0) || 0;
-
+  const totalGames = gamesData?.length || 0;
+  const totalBet = gamesData?.reduce((acc, item) => acc + Number(item.bet_amount || 0), 0) || 0;
+  const totalWin = gamesData?.reduce((acc, item) => acc + Number(item.win_amount || 0), 0) || 0;
   const casinoProfit = totalBet - totalWin;
 
   return NextResponse.json({

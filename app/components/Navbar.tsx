@@ -1,79 +1,72 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
-  const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    async function checkUserAndAdmin() {
-      const { data: { user } } = await supabase.auth.getUser();
+    // Cari istifadəçini yoxla
+    supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
+    });
 
-      if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("is_admin")
-          .eq("id", user.id)
-          .single();
+    // Auth statusunun dəyişməsini dinlə (Login / Logout olanda avtomatik yenilənməsi üçün)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
 
-        if (data?.is_admin) {
-          setIsAdmin(true);
-        }
-      }
-    }
-
-    checkUserAndAdmin();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  // Yalnız localhost-da true olacaq
-  const isLocalhost = typeof window !== "undefined" && window.location.hostname === "localhost";
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/");
+    router.refresh();
+  };
 
   return (
-    <nav className="w-full bg-zinc-950 border-b border-zinc-800 px-6 py-4 flex justify-between items-center text-white">
-      {/* Logo */}
-      <Link href="/" className="text-2xl font-black text-purple-500 flex items-center gap-2">
-        🎮 PlayVerse
+    <nav className="w-full bg-black border-b border-zinc-800 px-6 py-4 flex items-center justify-between text-white">
+      {/* Sol tərəf / Loqo */}
+      <Link href="/" className="text-xl font-black text-yellow-400 tracking-wider">
+        BigGoldWin
       </Link>
 
-      {/* Sağ Menyu Linkləri */}
-      <div className="flex items-center gap-6">
-        {/* Əgər istifadəçi giriş etməyibsə Register / Login göstər */}
+      {/* Orta / Sağ menyu linkləri */}
+      <div className="flex items-center gap-6 text-sm font-semibold">
+        <Link href="/games" className="hover:text-yellow-400 transition">Games</Link>
+        <Link href="/deposit" className="hover:text-yellow-400 transition">Deposit</Link>
+
+        {/* İstifadəçi LOGIN OLMAYIBSA: Register və Login göstər */}
         {!user ? (
           <>
-            <Link href="/register" className="text-zinc-300 hover:text-white transition font-medium">
-              Register
-            </Link>
-            <Link href="/login" className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl transition font-semibold">
+            <Link href="/register" className="hover:text-yellow-400 transition">Register</Link>
+            <Link 
+              href="/login" 
+              className="bg-yellow-500 text-black px-4 py-2 rounded-xl font-bold hover:bg-yellow-400 transition"
+            >
               Login
             </Link>
           </>
         ) : (
-          <span className="text-zinc-400 text-sm">
-            {user.email}
-          </span>
-        )}
-
-        <Link href="/games" className="text-zinc-300 hover:text-white transition">
-          Games
-        </Link>
-        
-        <Link href="/deposit" className="text-zinc-300 hover:text-white transition">
-          Deposit
-        </Link>
-        
-        <Link href="/profile" className="text-zinc-300 hover:text-white transition">
-          Profile
-        </Link>
-
-        {/* 🔒 Admin Linki: Yalnız localhost-da və səndə (admin olduqda) görünəcək */}
-        {isLocalhost && isAdmin && (
-          <Link href="/admin" className="text-yellow-400 hover:text-yellow-300 transition font-bold">
-            Admin
-          </Link>
+          /* İstifadəçi LOGIN OLUBSA: Profile, Admin və Log out göstər */
+          <>
+            <Link href="/profile" className="hover:text-yellow-400 transition">Profile</Link>
+            <Link href="/admin" className="text-yellow-400 hover:underline">Admin</Link>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl font-semibold hover:bg-red-500/30 transition cursor-pointer"
+            >
+              Log out
+            </button>
+          </>
         )}
       </div>
     </nav>

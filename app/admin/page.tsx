@@ -26,13 +26,6 @@ export default function AdminPage() {
   }, []);
 
   async function checkAdmin() {
-    // 🔒 1. Yalnız Localhost yoxlanışı (Vercel production-da qəti şəkildə bloklanır)
-    if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
-      location.href = "/";
-      return;
-    }
-
-    // 🔒 2. Supabase İstifadəçi və Admin Yoxlanışı
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -151,52 +144,65 @@ export default function AdminPage() {
   if (!isAdmin) return null;
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white flex justify-center py-12">
-      <div className="w-[700px] bg-zinc-900 rounded-2xl p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-5xl font-black">👑 Admin Panel</h1>
-          <span className="bg-green-500/20 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-semibold">
-            🟢 Localhost Only
-          </span>
+    <main className="min-h-screen bg-black text-white px-4 py-12 flex justify-center">
+      <div className="max-w-5xl w-full bg-zinc-950 border border-yellow-500/20 rounded-3xl p-8 shadow-2xl">
+        
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-zinc-800 pb-6">
+          <div>
+            <h1 className="text-3xl font-extrabold text-yellow-400">👑 BigGoldWin Admin Panel</h1>
+            <p className="text-zinc-400 text-sm mt-1">Manage platform users, balances and statistics</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="bg-green-500/10 text-green-400 border border-green-500/30 px-3 py-1 rounded-full text-xs font-semibold">
+              🟢 Online & Local
+            </span>
+            <a
+              href="/"
+              className="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
+            >
+              Home
+            </a>
+          </div>
         </div>
 
         {/* Dashboard Statistikaları */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-zinc-800 rounded-2xl p-5 text-center">
-            <div className="text-zinc-400 text-sm">👥 Users</div>
-            <div className="text-3xl font-black mt-2">{stats.totalUsers}</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 text-center">
+            <div className="text-zinc-400 text-xs font-semibold">👥 USERS</div>
+            <div className="text-2xl font-black mt-2 text-white">{stats.totalUsers}</div>
           </div>
 
-          <div className="bg-zinc-800 rounded-2xl p-5 text-center">
-            <div className="text-zinc-400 text-sm">💰 Total Balance</div>
-            <div className="text-3xl font-black text-green-400 mt-2">
+          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 text-center">
+            <div className="text-zinc-400 text-xs font-semibold">💰 TOTAL BALANCE</div>
+            <div className="text-2xl font-black text-green-400 mt-2">
               ${stats.totalBalance.toLocaleString()}
             </div>
           </div>
 
-          <div className="bg-zinc-800 rounded-2xl p-5 text-center">
-            <div className="text-zinc-400 text-sm">🎮 Total Games</div>
-            <div className="text-3xl font-black mt-2">{stats.totalGames}</div>
+          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 text-center">
+            <div className="text-zinc-400 text-xs font-semibold">🎮 TOTAL GAMES</div>
+            <div className="text-2xl font-black mt-2 text-white">{stats.totalGames}</div>
           </div>
 
-          <div className="bg-zinc-800 rounded-2xl p-5 text-center">
-            <div className="text-zinc-400 text-sm">🎯 Total Bet</div>
-            <div className="text-3xl font-black text-yellow-400 mt-2">
+          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 text-center">
+            <div className="text-zinc-400 text-xs font-semibold">🎯 TOTAL BET</div>
+            <div className="text-2xl font-black text-yellow-400 mt-2">
               ${stats.totalBet.toLocaleString()}
             </div>
           </div>
 
-          <div className="bg-zinc-800 rounded-2xl p-5 text-center">
-            <div className="text-zinc-400 text-sm">🏆 Total Win</div>
-            <div className="text-3xl font-black text-blue-400 mt-2">
+          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 text-center">
+            <div className="text-zinc-400 text-xs font-semibold">🏆 TOTAL WIN</div>
+            <div className="text-2xl font-black text-blue-400 mt-2">
               ${stats.totalWin.toLocaleString()}
             </div>
           </div>
 
-          <div className="bg-zinc-800 rounded-2xl p-5 text-center">
-            <div className="text-zinc-400 text-sm">📈 Casino Profit</div>
+          <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 text-center">
+            <div className="text-zinc-400 text-xs font-semibold">📈 CASINO PROFIT</div>
             <div
-              className={`text-3xl font-black mt-2 ${
+              className={`text-2xl font-black mt-2 ${
                 stats.casinoProfit >= 0 ? "text-green-400" : "text-red-400"
               }`}
             >
@@ -205,16 +211,18 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Axtarış */}
         <input
           type="text"
           placeholder="🔍 Search username..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-zinc-800 rounded-xl p-4 mb-8 outline-none focus:ring-2 focus:ring-zinc-600 transition"
+          className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-8 text-sm outline-none focus:border-yellow-500 transition"
         />
 
+        {/* İstifadəçilər Siyahısı */}
         <div>
-          <h2 className="text-3xl font-bold mb-5">👥 Users</h2>
+          <h2 className="text-2xl font-bold mb-5 text-yellow-400">👥 Users Management</h2>
 
           <div className="space-y-3">
             {users
@@ -224,46 +232,47 @@ export default function AdminPage() {
               .map((u) => (
                 <div
                   key={u.id}
-                  className="bg-zinc-800 rounded-xl p-4 flex justify-between items-center"
+                  className="bg-zinc-900 border border-zinc-800/80 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
                 >
                   <div>
-                    <div className="font-bold">{u.username || "No Username"}</div>
-                    <div className="text-zinc-400 text-sm">{u.id}</div>
+                    <div className="font-bold text-base text-white">{u.username || "No Username"}</div>
+                    <div className="text-zinc-500 text-xs font-mono mt-0.5">{u.id}</div>
+                    <div className="mt-2 inline-block">
+                      {u.is_admin ? (
+                        <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                          👑 Admin
+                        </span>
+                      ) : (
+                        <span className="bg-zinc-800 text-zinc-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                          Player
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="text-right">
-                    <div className="text-green-400 font-bold">${u.balance}</div>
+                  <div className="flex flex-col items-start md:items-end w-full md:w-auto gap-3">
+                    <div className="text-green-400 font-extrabold text-lg">${u.balance.toLocaleString()}</div>
 
-                    <div className="text-sm mb-3">
-                      {u.is_admin ? "👑 Admin" : "Player"}
-                    </div>
-
-                    <div className="mt-2 mb-3">
+                    <div className="flex flex-wrap gap-2 items-center">
                       {u.is_admin ? (
                         <button
                           onClick={() => toggleAdmin(u.id, false)}
-                          className="bg-red-500 px-3 py-1 rounded hover:bg-red-400 transition cursor-pointer"
+                          className="bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-xl hover:bg-red-500/30 transition cursor-pointer text-xs font-semibold"
                         >
                           Remove Admin
                         </button>
                       ) : (
                         <button
                           onClick={() => toggleAdmin(u.id, true)}
-                          className="bg-yellow-500 text-black px-3 py-1 rounded hover:bg-yellow-400 transition cursor-pointer text-sm font-semibold"
+                          className="bg-yellow-500 text-black px-3 py-1.5 rounded-xl hover:bg-yellow-400 transition cursor-pointer text-xs font-bold"
                         >
                           👑 Make Admin
                         </button>
                       )}
                     </div>
 
-                    <button
-                      onClick={() => router.push(`/admin/logs/${u.id}`)}
-                      className="bg-indigo-600 px-3 py-1 rounded hover:bg-indigo-500 transition mb-2 cursor-pointer text-sm"
-                    >
-                      📜 View Logs
-                    </button>
-
-                    <div className="flex flex-wrap gap-2 justify-end mt-2">
+                    {/* Balans idarəetmə düymələri */}
+                    <div className="flex flex-wrap gap-1.5 justify-start md:justify-end pt-2 border-t border-zinc-800/60 w-full">
                       <button
                         onClick={() => {
                           const customAmount = prompt(
@@ -277,21 +286,21 @@ export default function AdminPage() {
                             updateBalance(u.id, Number(customAmount));
                           }
                         }}
-                        className="bg-purple-600 px-3 py-1 rounded hover:bg-purple-500 transition cursor-pointer font-semibold text-sm"
+                        className="bg-purple-600/20 text-purple-400 border border-purple-500/30 px-2.5 py-1 rounded-lg hover:bg-purple-600/30 transition cursor-pointer text-xs font-semibold"
                       >
                         ✏️ Custom
                       </button>
 
                       <button
                         onClick={() => updateBalance(u.id, u.balance + 100)}
-                        className="bg-green-600 px-3 py-1 rounded hover:bg-green-500 transition cursor-pointer text-sm"
+                        className="bg-green-600/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded-lg hover:bg-green-600/30 transition cursor-pointer text-xs font-semibold"
                       >
                         +100
                       </button>
 
                       <button
                         onClick={() => updateBalance(u.id, u.balance + 1000)}
-                        className="bg-blue-600 px-3 py-1 rounded hover:bg-blue-500 transition cursor-pointer text-sm"
+                        className="bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-lg hover:bg-blue-600/30 transition cursor-pointer text-xs font-semibold"
                       >
                         +1000
                       </button>
@@ -300,7 +309,7 @@ export default function AdminPage() {
                         onClick={() =>
                           updateBalance(u.id, Math.max(0, u.balance - 100))
                         }
-                        className="bg-red-600 px-3 py-1 rounded hover:bg-red-500 transition cursor-pointer text-sm"
+                        className="bg-red-600/20 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-lg hover:bg-red-600/30 transition cursor-pointer text-xs font-semibold"
                       >
                         -100
                       </button>
@@ -309,16 +318,18 @@ export default function AdminPage() {
                         onClick={() =>
                           updateBalance(u.id, Math.max(0, u.balance - 1000))
                         }
-                        className="bg-red-800 px-3 py-1 rounded hover:bg-red-700 transition cursor-pointer text-sm"
+                        className="bg-red-900/30 text-red-400 border border-red-700/40 px-2.5 py-1 rounded-lg hover:bg-red-900/50 transition cursor-pointer text-xs font-semibold"
                       >
                         -1000
                       </button>
                     </div>
+
                   </div>
                 </div>
               ))}
           </div>
         </div>
+
       </div>
     </main>
   );

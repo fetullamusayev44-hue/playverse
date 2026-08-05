@@ -1,4 +1,5 @@
-"client"; // Əgər Next.js App Router istifadə edirsənsə, state üçün lazımdır
+"use client";
+
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -8,51 +9,58 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white px-8 py-10">
       
-      {/* Platformanın Başlığı və Məlumat Düyməsi */}
+      {/* Naviqasiya / Başlıq */}
       <div className="flex justify-between items-center mb-10">
         <h1 className="text-3xl font-extrabold text-yellow-500 tracking-wider flex items-center gap-2">
-          🎮 BigGoldWin Games
+          ⚡ BigGoldWin
         </h1>
         
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-zinc-900 border border-yellow-500/50 hover:border-yellow-400 text-yellow-400 px-4 py-2 rounded-xl transition text-sm font-semibold flex items-center gap-2 shadow-lg shadow-yellow-500/10"
-        >
-          ℹ️ About BigGoldWin
-        </button>
-      </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin"
+            className="bg-zinc-900 border border-yellow-500/50 hover:border-yellow-400 text-yellow-400 px-4 py-2 rounded-xl transition text-sm font-semibold flex items-center gap-2 shadow-lg shadow-yellow-500/10"
+          >
+            👑 Admin
+          </Link>
 
-      {/* Oyunların Siyahısı */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Snake Game */}
-        <div className="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">🐍 Snake</h2>
-              <span className="text-xs bg-green-500/20 text-green-400 px-2.5 py-1 rounded-full font-medium">Available</span>
-            </div>
-            <p className="text-zinc-400 text-sm mb-6">Classic snake game with crypto rewards and cashout options.</p>
-          </div>
-          <Link href="/games/snake" className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-2.5 rounded-xl text-center font-bold transition block">
-            Play Now
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-zinc-900 border border-yellow-500/50 hover:border-yellow-400 text-yellow-400 px-4 py-2 rounded-xl transition text-sm font-semibold flex items-center gap-2 shadow-lg shadow-yellow-500/10 cursor-pointer"
+          >
+            ℹ️ About BigGoldWin
+          </button>
+          
+          <Link
+            href="/login"
+            className="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-xl font-bold transition text-sm shadow-lg shadow-yellow-500/10"
+          >
+            Login
+          </Link>
+          
+          <Link
+            href="/register"
+            className="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-white px-4 py-2 rounded-xl font-semibold transition text-sm"
+          >
+            Register
           </Link>
         </div>
+      </div>
 
-        {/* Tic-Tac-Toe */}
-        <div className="bg-zinc-950 border border-zinc-800 p-6 rounded-2xl flex flex-col justify-between">
-          <div>
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">⭕ Tic-Tac-Toe</h2>
-              <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2.5 py-1 rounded-full font-medium">Coming Soon</span>
-            </div>
-            <p className="text-zinc-400 text-sm mb-6">Challenge your friends and win crypto in strategic matches.</p>
-          </div>
-          <button disabled className="w-full bg-zinc-800 text-zinc-500 py-2.5 rounded-xl font-bold cursor-not-allowed">
-            Coming Soon
-          </button>
+      {/* Boş Oyun Sahəsi / Əsas Mərkəz */}
+      <div className="border-2 border-dashed border-zinc-800 rounded-3xl p-16 text-center flex flex-col items-center justify-center min-h-[400px]">
+        <div className="text-5xl mb-4">🚀</div>
+        <h2 className="text-xl font-bold text-zinc-300 mb-2">Welcome to BigGoldWin</h2>
+        <p className="text-zinc-500 max-w-md text-sm mb-6">
+          Your ultimate crypto gaming and high-reward platform. New exciting games and features are coming soon!
+        </p>
+        <div className="flex gap-4">
+          <Link
+            href="/register"
+            className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-6 py-2.5 rounded-xl transition text-sm"
+          >
+            Get Started
+          </Link>
         </div>
-
       </div>
 
       {/* Ətraflı Məlumat Modalı (Popup) */}
@@ -64,7 +72,7 @@ export default function Home() {
               <h3 className="text-2xl font-extrabold text-yellow-400">About BigGoldWin</h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-zinc-400 hover:text-white text-xl font-bold p-1"
+                className="text-zinc-400 hover:text-white text-xl font-bold p-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -92,7 +100,7 @@ export default function Home() {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-2 rounded-xl font-bold transition text-sm"
+                className="bg-yellow-500 hover:bg-yellow-400 text-black px-5 py-2 rounded-xl font-bold transition text-sm cursor-pointer"
               >
                 Got It
               </button>

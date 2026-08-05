@@ -61,27 +61,12 @@ export default function RootLayout({
               Profile
             </Link>
 
-            {/* Vercel-də gizlənən, yalnız localhost-da görünən Admin linki */}
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  if (window.location.hostname !== 'localhost') {
-                    document.addEventListener('DOMContentLoaded', () => {
-                      const adminLink = document.getElementById('admin-link');
-                      if (adminLink) adminLink.style.display = 'none';
-                    });
-                  }
-                `,
-              }}
-            />
-            
-            <a 
-              id="admin-link" 
+            <Link 
               href="/admin" 
               className="text-yellow-400 hover:text-yellow-300 transition font-bold"
             >
               Admin
-            </a>
+            </Link>
 
           </div>
 
