@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
-import { saveGame, getCurrentUser } from "../../lib/game";
+import {
+  saveGame,
+  getCurrentUser,
+} from "../../lib/game";
+import {
+  addBalance,
+} from "../../lib/bet";
 
 const BOARD_SIZE = 20;
 const TOTAL_CELLS = BOARD_SIZE * BOARD_SIZE;
 
-export function useSnake() {
+export function useSnake(started: boolean) {
   const [snake, setSnake] = useState([210, 211, 212]);
   const [direction, setDirection] = useState(1);
 
   const [food, setFood] = useState(150);
+
   const [score, setScore] = useState(0);
 
   const [gameOver, setGameOver] = useState(false);
@@ -36,20 +43,22 @@ export function useSnake() {
 
     window.addEventListener("keydown", handleKeyDown);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [direction]);
 
   useEffect(() => {
+    if (!started) return;
+
     if (gameOver) return;
 
     const interval = setInterval(() => {
       setSnake((prev) => {
         const head = prev[prev.length - 1];
+
         let newHead = head + direction;
 
         if (newHead < 0) newHead = TOTAL_CELLS - 1;
+
         if (newHead >= TOTAL_CELLS) newHead = 0;
 
         if (prev.includes(newHead)) {
@@ -60,7 +69,7 @@ export function useSnake() {
         const newSnake = [...prev, newHead];
 
         if (newHead === food) {
-          setScore((prevScore) => prevScore + 10);
+          setScore((s) => s + 10);
 
           let newFood = Math.floor(Math.random() * TOTAL_CELLS);
 
@@ -80,7 +89,7 @@ export function useSnake() {
     }, 200);
 
     return () => clearInterval(interval);
-  }, [direction, food, gameOver]);
+  }, [started, direction, food, gameOver]);
 
   useEffect(() => {
     async function finishGame() {
@@ -91,6 +100,12 @@ export function useSnake() {
       if (!user) return;
 
       await saveGame(user.id, score);
+
+      const reward = Math.floor(score / 5);
+
+      if (reward > 0) {
+        await addBalance(user.id, reward);
+      }
     }
 
     finishGame();
