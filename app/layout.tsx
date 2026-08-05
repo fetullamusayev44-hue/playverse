@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PlayVerse",
+  title: "BigGoldWin",
   description: "Crypto Gaming Platform",
 };
 
@@ -34,9 +34,9 @@ export default function RootLayout({
 
           <Link
             href="/"
-            className="text-3xl font-bold text-purple-500"
+            className="text-3xl font-extrabold text-yellow-500 tracking-wider flex items-center gap-2"
           >
-            🎮 PlayVerse
+            🪙 BigGoldWin
           </Link>
 
           <div className="flex items-center gap-6">
@@ -45,23 +45,23 @@ export default function RootLayout({
               Register
             </Link>
 
-            <Link href="/login" className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-xl transition font-semibold">
+            <Link href="/login" className="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-2 rounded-xl transition font-bold">
               Login
             </Link>
 
-            <Link href="/games" className="text-zinc-300 hover:text-transition">
+            <Link href="/games" className="text-zinc-300 hover:text-white transition">
               Games
             </Link>
 
-            <Link href="/deposit" className="text-zinc-300 hover:text-transition">
+            <Link href="/deposit" className="text-zinc-300 hover:text-white transition">
               Deposit
             </Link>
 
-            <Link href="/profile" className="text-zinc-300 hover:text-transition">
+            <Link href="/profile" className="text-zinc-300 hover:text-white transition">
               Profile
             </Link>
 
-            {/* Vercel-də avtomatik gizlənməsi üçün sadə script */}
+            {/* Vercel-də gizlənən, yalnız localhost-da görünən Admin linki */}
             <script
               dangerouslySetInnerHTML={{
                 __html: `
