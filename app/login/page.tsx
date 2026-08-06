@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase"; // DİQQƏT: Yalnız adi client istifadə olunur!
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,7 +17,6 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    // Giriş üçün hər zaman adi public client işlənməlidir
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -26,7 +26,7 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/"); // Uğurlu girişdən sonra yönləndirmə
+      router.push("/");
       router.refresh();
     }
   };
@@ -34,7 +34,8 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-black text-white">
       <form onSubmit={handleLogin} className="w-full max-w-md p-8 bg-zinc-900 rounded-xl border border-zinc-800">
-        <h2 className="text-2xl font-bold mb-6 text-center text-yellow-500">Welcome Back</h2>
+        <h2 className="text-2xl font-bold mb-2 text-center text-yellow-500">Welcome Back</h2>
+        <p className="text-sm text-zinc-400 text-center mb-6">Sign in to your BigGoldWin account</p>
         
         {error && (
           <div className="mb-4 p-3 bg-red-950 border border-red-800 text-red-200 text-sm rounded">
@@ -53,7 +54,7 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-2">
           <label className="block text-sm mb-2 text-zinc-400">Password</label>
           <input
             type="password"
@@ -64,6 +65,12 @@ export default function LoginPage() {
           />
         </div>
 
+        <div className="flex justify-end mb-6">
+          <Link href="/forgot-password" suppressHydrationWarning className="text-xs text-yellow-500 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
@@ -71,6 +78,10 @@ export default function LoginPage() {
         >
           {loading ? "Logging in..." : "Login"}
         </button>
+
+        <p className="text-xs text-zinc-400 text-center mt-6">
+          Don't have an account? <Link href="/register" className="text-yellow-500 hover:underline font-semibold">Register here</Link>
+        </p>
       </form>
     </div>
   );

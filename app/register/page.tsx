@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase"; // DİQQƏT: Yalnız adi client istifadə olunur!
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -25,14 +26,15 @@ export default function RegisterPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/login"); // Qeydiyyatdan sonra loginə atır
+      router.push("/login");
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-black text-white">
       <form onSubmit={handleRegister} className="w-full max-w-md p-8 bg-zinc-900 rounded-xl border border-zinc-800">
-        <h2 className="text-2xl font-bold mb-6 text-center text-yellow-500">Create Account</h2>
+        <h2 className="text-2xl font-bold mb-2 text-center text-yellow-500">Create Account</h2>
+        <p className="text-sm text-zinc-400 text-center mb-6">Sign up for a BigGoldWin account</p>
         
         {error && (
           <div className="mb-4 p-3 bg-red-950 border border-red-800 text-red-200 text-sm rounded">
@@ -69,6 +71,10 @@ export default function RegisterPage() {
         >
           {loading ? "Registering..." : "Register"}
         </button>
+
+        <p className="text-xs text-zinc-400 text-center mt-6">
+          Already have an account? <Link href="/login" className="text-yellow-500 hover:underline font-semibold">Login here</Link>
+        </p>
       </form>
     </div>
   );
