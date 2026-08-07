@@ -1,10 +1,12 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceKey = 
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 
+  process.env.SUPABASE_KEY;
 
 if (!supabaseServiceKey) {
-  throw new Error("supabaseKey is required");
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY is missing in environment variables!");
 }
 
 export const supabaseAdmin = createClient(
