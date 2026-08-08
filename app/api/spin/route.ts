@@ -2,11 +2,6 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { generateSpin } from "@/lib/slot";
 
-console.log(
-  "SERVICE KEY:",
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
 export async function POST(req: Request) {
   try {
     const { userId, bet } = await req.json();
